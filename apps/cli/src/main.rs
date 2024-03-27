@@ -1,16 +1,16 @@
+use std::{fs::File, path::PathBuf};
+
 use clap::{Parser, Subcommand};
+use handlebars::Handlebars;
+use serde_json::json;
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// Name of the person to greet
+    /// target dir
     #[arg(short, long)]
-    name: String,
-
-    /// Number of times to greet
-    #[arg(short, long, default_value_t = 1)]
-    count: u8,
+    dir: Option<String>,
 
     #[command(subcommand)]
     command: Command,
@@ -25,24 +25,27 @@ enum Command {
     Cdk,
 }
 
+fn execute_development(dir: &Option<String>) {
+    let mut path = PathBuf::new();
+    if let Some(dir) = dir {
+        path.push(dir);
+    }
+    path.push("development");
+    std::fs::create_dir_all(path.clone()).unwrap();
 
-fn execute_development() {
-    std::fs::create_dir_all("infra/development").unwrap();
+    let mut handlebars = Handlebars::new();
+    handlebars
+        .register_template_file("template", "./templates/development/docker-compose.hbs")
+        .unwrap();
+    path.push("docker-compose.yaml");
+    let mut output_file = File::create(path).unwrap();
+    handlebars.render_to_write("template", &json!({}), &mut output_file).unwrap();
 }
 
 fn main() {
-    let path = std::env::current_dir().unwrap();
-    println!("starting dir: {}", path.display());
-    execute_development();
-
     let args = Args::parse();
-
-    for _ in 0..args.count {
-        println!("Hello {}!", args.name)
-    }
-
     match args.command {
-        Command::Development => println!("development"),
+        Command::Development => execute_development(&args.dir),
         Command::Cdk => println!("cdk"),
     }
 }
