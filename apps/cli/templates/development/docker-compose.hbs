@@ -1,8 +1,8 @@
 services:
-  api:
+  app:
     build: 
       context: .
-      dockerfile: Dockerfile.api
+      dockerfile: Dockerfile.app
 {{#if depend_flag}}
     depends_on:
 {{#each depends}}

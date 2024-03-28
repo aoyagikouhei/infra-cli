@@ -81,7 +81,7 @@ fn execute_development(project_code: &str, dir: &Option<String>, redis: bool, po
     handlebars.render_to_write("template", &data, &mut output_file).unwrap();
 
     let mut path_dockerfile = path.clone();
-    path_dockerfile.push("Dockerfile.api");
+    path_dockerfile.push("Dockerfile.app");
     let mut output_file = File::create(path_dockerfile).unwrap();
     handlebars.render_to_write("docker", &data, &mut output_file).unwrap();
 }
