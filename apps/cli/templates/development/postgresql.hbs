@@ -1,0 +1,10 @@
+  postgresql:
+    image: postgres:16.2
+    environment:
+      - POSTGRES_DB=web
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+    ports:
+      - 5432:5432
+    volumes:
+      - {{project_code}}_postgresql_data:/var/lib/postgresql/data

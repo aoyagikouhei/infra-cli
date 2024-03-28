@@ -1,1 +1,56 @@
 services:
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile.api
+{{#if depend_flag}}
+    depends_on:
+{{#each depends}}
+      - {{v}}
+{{/each}}
+{{/if}}
+    environment:
+      CARGO_TARGET_DIR: /tmp/target
+      RUST_BACKTRACE: 1
+      RUST_TEST_THREADS: 1
+      CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+{{#if postgresql}}
+      PG__HOST: postgresql
+      PG__USER: user
+      PG__PASSWORD: pass
+      PG__DBNAME: web
+      PG__POOL__MAX_SIZE: 16
+      PG__POOL__TIMEOUTS__WAIT__SECS: 5
+      PG__POOL__TIMEOUTS__WAIT__NANOS: 0
+{{/if}}
+{{#if redis}}
+      REDIS__URL: redis://redis
+      REDIS__POOL__MAX_SIZE: 16
+      REDIS__POOL__TIMEOUTS__WAIT__SECS: 2
+      REDIS__POOL__TIMEOUTS__WAIT__NANOS: 0
+{{/if}}
+    volumes:
+      - ../apps/service:/apps/service
+      - {{project_code}}_cargo_cache:/usr/local/cargo/registry
+      - {{project_code}}_target_cache:/tmp/target
+    tty: true
+    working_dir: /apps/service
+    ports:
+      - 3000:3000
+    security_opt:
+      - seccomp:unconfined
+
+{{#if redis}}
+{{> redis_template }}
+{{/if}}
+{{#if postgresql}}
+
+{{> postgresql_template }}
+{{/if}}
+
+{{#if volume_flag}}
+volumes:
+{{#each volumes}}
+  {{v}}:
+{{/each}}
+{{/if}}
