@@ -5,14 +5,10 @@ use serde_json::json;
 
 pub fn execute(
     project_code: &str,
-    dir: &Option<String>,
+    mut path: PathBuf,
     redis: bool,
     postgresql: bool,
 ) -> anyhow::Result<()> {
-    let mut path = PathBuf::new();
-    if let Some(dir) = dir {
-        path.push(dir);
-    }
     path.push("development");
     std::fs::create_dir_all(path.clone())?;
 

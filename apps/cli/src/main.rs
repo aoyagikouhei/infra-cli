@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::{Parser, Subcommand};
 
 mod cdk;
@@ -34,13 +36,22 @@ enum Command {
     Cdk,
 }
 
+pub fn make_pathbuf(dir: &Option<String>,) -> PathBuf {
+    let mut path = PathBuf::new();
+    if let Some(dir) = dir {
+        path.push(dir);
+    }
+    path.push("infra");
+    path
+}
+
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     match args.command {
         Command::Development { redis, postgresql } => {
-            development::execute(&args.project, &args.dir, redis, postgresql)?
+            development::execute(&args.project, make_pathbuf(&args.dir), redis, postgresql)?
         }
-        Command::Cdk => cdk::execute()?,
+        Command::Cdk => cdk::execute(&args.project, make_pathbuf(&args.dir))?,
     }
     Ok(())
 }
