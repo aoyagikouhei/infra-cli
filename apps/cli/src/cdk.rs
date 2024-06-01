@@ -9,3 +9,8 @@ pub fn execute(
 
     Ok(())
 }
+
+fn execute_cdk() -> anyhow::Result<()> {
+    
+    Ok(())
+}
